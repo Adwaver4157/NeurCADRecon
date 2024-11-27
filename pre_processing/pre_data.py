@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 
@@ -31,14 +32,15 @@ def data_no_filter(mesh_path, input_path, sample_pt_num=10000):
 
 
 if __name__ == "__main__":
-    gt_path = '/home/qiujie/NeurCADRecon_public/data/fandisk/gt'
-    os.makedirs(gt_path, exist_ok=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--gt_path', type=str, default='NeurCADRecon_public/data/fandisk/gt')
+    parser.add_argument('--input_path', type=str, default='NeurCADRecon_public/data/fandisk/input')
+    parser.add_argument('--sample_pt_num', type=int, default=30000)
+    parser.add_argument('--num_processes', type=int, default=16)
+    args = parser.parse_args()
 
-    input_path = '/home/qiujie/NeurCADRecon_public/data/fandisk/input'
-    os.makedirs(input_path, exist_ok=True)
-
-    num_processes = 16
-    sample_pt_num = 30000
+    os.makedirs(args.gt_path, exist_ok=True)
+    os.makedirs(args.input_path, exist_ok=True)
 
     call_params = list()
     for f in tqdm.tqdm(sorted(os.listdir(gt_path))):
@@ -46,6 +48,6 @@ if __name__ == "__main__":
             continue
 
         mesh_path = os.path.join(gt_path, f)
-        call_params.append((mesh_path, input_path, sample_pt_num))
+        call_params.append((mesh_path, input_path, args.sample_pt_num))
 
-    start_process_pool(data_no_filter, call_params, num_processes)
+    start_process_pool(data_no_filter, call_params, args.num_processes)
