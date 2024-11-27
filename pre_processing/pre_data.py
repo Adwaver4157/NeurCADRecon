@@ -43,11 +43,11 @@ if __name__ == "__main__":
     os.makedirs(args.input_path, exist_ok=True)
 
     call_params = list()
-    for f in tqdm.tqdm(sorted(os.listdir(gt_path))):
+    for f in tqdm.tqdm(sorted(os.listdir(args.gt_path))):
         if os.path.splitext(f)[1] not in ['.ply', '.obj', '.off']:
             continue
 
-        mesh_path = os.path.join(gt_path, f)
-        call_params.append((mesh_path, input_path, args.sample_pt_num))
+        mesh_path = os.path.join(args.gt_path, f)
+        call_params.append((mesh_path, args.input_path, args.sample_pt_num))
 
     start_process_pool(data_no_filter, call_params, args.num_processes)
