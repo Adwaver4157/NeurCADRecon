@@ -67,6 +67,7 @@ num_batches = len(train_dataloader)
 refine_flag = True
 min_cd = np.inf
 max_f1 = -np.inf
+euler_num = 0
 # For each epoch
 for epoch in range(args.num_epochs):
     # For each batch in the dataloader
@@ -90,6 +91,8 @@ for epoch in range(args.num_epochs):
                 pred_mesh = mesh.copy()
                 cd_l1 = np.inf
                 f1_mu = np.inf
+                min_cd = np.inf
+                euler_num = 0
                 if len(gt_path) != 0:
                     print('gt_path:', gt_path[0])
                     gt = trimesh.load(gt_path[0], process=False)
@@ -108,22 +111,36 @@ for epoch in range(args.num_epochs):
                                                                                                            f1_mu,
                                                                                                            euler_num),
                         log_file)
-                    if cd_l1 < min_cd:
-                        min_cd = cd_l1
-                        # save model
-                        utils.log_string(
-                            "saving model to file :{}".format(
-                                '%s_generator_model_%d.pth' % (args.model_name, batch_idx)),
-                            log_file)
-                        torch.save(net.state_dict(),
-                                   os.path.join(model_outdir,
-                                                '%s_model_%d_%.5f.pth' % (args.model_name, batch_idx, min_cd)))
-                        best_path = os.path.join(output_dir,
-                                                 shapename + '_iter_{}_euler_{}_cdl1_{}_min_f1_{}.ply'.format(batch_idx,
-                                                                                                              euler_num,
-                                                                                                              str(min_cd),
-                                                                                                              f1_mu))
-                        mesh.export(best_path)
+                    # if cd_l1 < min_cd:
+                    #     min_cd = cd_l1
+                    #     # save model
+                    #     utils.log_string(
+                    #         "saving model to file :{}".format(
+                    #             '%s_generator_model_%d.pth' % (args.model_name, batch_idx)),
+                    #         log_file)
+                    #     torch.save(net.state_dict(),
+                    #                os.path.join(model_outdir,
+                    #                             '%s_model_%d_%.5f.pth' % (args.model_name, batch_idx, min_cd)))
+                    #     best_path = os.path.join(output_dir,
+                    #                              shapename + '_iter_{}_euler_{}_cdl1_{}_min_f1_{}.ply'.format(batch_idx,
+                    #                                                                                           euler_num,
+                    #                                                                                           str(min_cd),
+                    #                                                                                           f1_mu))
+                    #     mesh.export(best_path)
+                # save model
+                utils.log_string(
+                    "saving model to file :{}".format(
+                        '%s_generator_model_%d.pth' % (args.model_name, batch_idx)),
+                    log_file)
+                torch.save(net.state_dict(),
+                            os.path.join(model_outdir,
+                                        '%s_model_%d_%.5f.pth' % (args.model_name, batch_idx, min_cd)))
+                best_path = os.path.join(output_dir,
+                                            shapename + '_iter_{}_euler_{}_cdl1_{}_min_f1_{}.ply'.format(batch_idx,
+                                                                                                        euler_num,
+                                                                                                        str(min_cd),
+                                                                                                        f1_mu))
+                mesh.export(best_path)
 
                 if args.output_any:
                     output_ply_filepath = os.path.join(output_dir,
